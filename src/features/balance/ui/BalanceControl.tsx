@@ -15,18 +15,20 @@ interface Props {
 const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError<ApiError>(error)) {
     const serverMessage = error.response?.data?.err;
+    const msg = serverMessage?.toLowerCase() ?? "";
 
-    if (serverMessage?.toLowerCase().includes("insufficient")) {
+    if (msg.includes("insufficient") || msg.includes("not enough")) {
       return "Недостаточно средств";
     }
-    if (serverMessage?.toLowerCase().includes("invalid")) {
+    if (msg.includes("invalid")) {
       return "Некорректная сумма";
     }
+
+    // Если сервер вернул что-то другое — показываем как есть
     if (serverMessage) {
       return serverMessage;
     }
 
-    // Axios ошибка, но без тела ответа (таймаут, сеть и т.д.)
     if (!error.response) {
       return "Нет соединения с сервером";
     }
@@ -34,7 +36,6 @@ const getErrorMessage = (error: unknown): string => {
     return `Ошибка сервера (${error.response.status})`;
   }
 
-  // Совсем неизвестная ошибка (не от axios)
   return "Произошла ошибка. Попробуйте снова";
 };
 
