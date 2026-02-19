@@ -19,7 +19,7 @@ vi.mock("react-toastify", () => ({
 
 // Мокаем хук обновления баланса
 const mockMutate = vi.fn();
-vi.mock("@/entities/device", () => ({
+vi.mock("../model/useUpdateBalance", () => ({
   useUpdateBalance: () => ({
     mutate: mockMutate,
     isPending: false,
