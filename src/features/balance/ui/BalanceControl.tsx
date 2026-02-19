@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { toast } from "react-toastify";
+import axios from "axios";
 import { useUpdateBalance } from "../model/useUpdateBalance";
 import { getValidationError } from "../model/validation";
 import type { ApiError } from "@/shared/types";
@@ -10,6 +10,8 @@ interface Props {
   deviceId: string;
   placeId: number;
 }
+
+type OperationType = "deposit" | "withdraw";
 
 const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError<ApiError>(error)) {
@@ -23,7 +25,6 @@ const getErrorMessage = (error: unknown): string => {
       return "Некорректная сумма";
     }
 
-    // Если сервер вернул что-то другое — показываем как есть
     if (serverMessage) {
       return serverMessage;
     }
@@ -41,6 +42,7 @@ const getErrorMessage = (error: unknown): string => {
 export const BalanceControl = ({ deviceId, placeId }: Props) => {
   const [amount, setAmount] = useState("");
   const [inputError, setInputError] = useState("");
+  const [activeOp, setActiveOp] = useState<OperationType | null>(null);
 
   const { mutate: updateBalance, isPending } = useUpdateBalance(deviceId);
 
@@ -50,11 +52,13 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
     return error === null;
   };
 
-  const handleOperation = (type: "deposit" | "withdraw") => {
+  const handleOperation = (type: OperationType) => {
     if (!validate(amount)) return;
 
     const delta =
       Math.round(parseFloat(amount) * 100) * (type === "deposit" ? 1 : -1);
+
+    setActiveOp(type);
 
     updateBalance(
       { placeId, request: { delta } },
@@ -65,9 +69,11 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
           );
           setAmount("");
           setInputError("");
+          setActiveOp(null);
         },
         onError: (error: unknown) => {
           toast.error(getErrorMessage(error));
+          setActiveOp(null);
         },
       }
     );
@@ -101,7 +107,7 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
           onClick={() => handleOperation("deposit")}
           className="flex-grow-1"
         >
-          {isPending ? "Загрузка..." : "+ Deposit"}
+          {activeOp === "deposit" ? "Пополнение..." : "+ Deposit"}
         </Button>
         <Button
           variant="danger"
@@ -110,7 +116,7 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
           onClick={() => handleOperation("withdraw")}
           className="flex-grow-1"
         >
-          {isPending ? "Загрузка..." : "− Withdraw"}
+          {activeOp === "withdraw" ? "Списание..." : "− Withdraw"}
         </Button>
       </div>
     </div>
