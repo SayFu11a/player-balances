@@ -13,6 +13,10 @@ interface Props {
 
 type OperationType = "deposit" | "withdraw";
 
+// const MAX_AMOUNT = 100_000;
+
+const CONFIRM_THRESHOLD = 1_000;
+
 const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError<ApiError>(error)) {
     const serverMessage = error.response?.data?.err;
@@ -28,12 +32,6 @@ const getErrorMessage = (error: unknown): string => {
     if (serverMessage) {
       return serverMessage;
     }
-
-    if (!error.response) {
-      return "Нет соединения с сервером";
-    }
-
-    return `Ошибка сервера (${error.response.status})`;
   }
 
   return "Произошла ошибка. Попробуйте снова";
@@ -55,8 +53,19 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
   const handleOperation = (type: OperationType) => {
     if (!validate(amount)) return;
 
+    const numericAmount = parseFloat(amount);
+
+    // Подтверждение для крупных операций
+    if (numericAmount >= CONFIRM_THRESHOLD) {
+      const action = type === "deposit" ? "пополнить" : "списать";
+      const confirmed = window.confirm(
+        `Вы уверены, что хотите ${action} ${numericAmount.toFixed(2)}?`
+      );
+      if (!confirmed) return;
+    }
+
     const delta =
-      Math.round(parseFloat(amount) * 100) * (type === "deposit" ? 1 : -1);
+      Math.round(numericAmount * 100) * (type === "deposit" ? 1 : -1);
 
     setActiveOp(type);
 
