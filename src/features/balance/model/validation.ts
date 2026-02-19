@@ -22,19 +22,28 @@ export const getValidationError = (value: string): string | null => {
     return "Введите сумму";
   }
 
-  const num = parseFloat(value);
+  const trimmed = value.trim();
 
-  if (isNaN(num)) {
+  // Проверяем формат ПЕРЕД parseFloat, чтобы отсечь "1e5", "abc" и т.д.
+  // Допускаем: "100", "100.5", "100.50", ".5", "0.99"
+  if (!/^\d*\.?\d+$/.test(trimmed)) {
     return "Введите корректное число";
   }
+
+  const num = parseFloat(trimmed);
 
   if (num <= 0) {
     return "Сумма должна быть больше нуля";
   }
 
   // Проверка на максимум 2 знака после запятой
-  if (!/^\d+(\.\d{1,2})?$/.test(value)) {
-    return "Максимум 2 знака после запятой (например: 100.50)";
+  // Отдельная проверка — чтобы дать точное сообщение об ошибке
+  const dotIndex = trimmed.indexOf(".");
+  if (dotIndex !== -1) {
+    const decimals = trimmed.length - dotIndex - 1;
+    if (decimals > 2) {
+      return "Максимум 2 знака после запятой (например: 100.50)";
+    }
   }
 
   return null; // null = валидно

@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useUpdateBalance } from "@/entities/device";
-import type { AxiosError } from "axios";
+// import type { AxiosError } from "axios";
+import axios from "axios";
 import type { ApiError } from "@/shared/types";
 import { getValidationError } from "../model/validation";
 
@@ -12,14 +13,28 @@ interface Props {
 }
 
 const getErrorMessage = (error: unknown): string => {
-  const axiosError = error as AxiosError<ApiError>;
-  const serverMessage = axiosError?.response?.data?.err;
+  if (axios.isAxiosError<ApiError>(error)) {
+    const serverMessage = error.response?.data?.err;
 
-  if (serverMessage?.toLowerCase().includes("insufficient"))
-    return "Недостаточно средств";
-  if (serverMessage?.toLowerCase().includes("invalid"))
-    return "Некорректная сумма";
-  if (serverMessage) return serverMessage;
+    if (serverMessage?.toLowerCase().includes("insufficient")) {
+      return "Недостаточно средств";
+    }
+    if (serverMessage?.toLowerCase().includes("invalid")) {
+      return "Некорректная сумма";
+    }
+    if (serverMessage) {
+      return serverMessage;
+    }
+
+    // Axios ошибка, но без тела ответа (таймаут, сеть и т.д.)
+    if (!error.response) {
+      return "Нет соединения с сервером";
+    }
+
+    return `Ошибка сервера (${error.response.status})`;
+  }
+
+  // Совсем неизвестная ошибка (не от axios)
   return "Произошла ошибка. Попробуйте снова";
 };
 
@@ -49,8 +64,9 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
             type === "deposit" ? "Баланс пополнен!" : "Средства сняты!"
           );
           setAmount("");
+          setInputError("");
         },
-        onError: (error) => {
+        onError: (error: unknown) => {
           toast.error(getErrorMessage(error));
         },
       }
@@ -61,11 +77,10 @@ export const BalanceControl = ({ deviceId, placeId }: Props) => {
     <div>
       <InputGroup hasValidation>
         <Form.Control
-          type="number"
+          type="text"
+          inputMode="decimal"
           placeholder="Введите сумму"
           value={amount}
-          min="0.01"
-          step="0.01"
           isInvalid={!!inputError}
           onChange={(e) => {
             setAmount(e.target.value);
