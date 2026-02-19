@@ -1,24 +1,12 @@
 import { memo } from "react";
 import { Card, Badge } from "react-bootstrap";
+import { formatBalance } from "@/shared/lib/formatCurrency";
 import type { DevicePlace } from "@/shared/types";
 
 interface Props {
   place: DevicePlace;
   balanceControl?: React.ReactNode;
 }
-
-/**
- * Форматирует баланс из минимальных единиц валюты в читаемый вид.
- * Сервер хранит деньги как целые числа (int64) в копейках/центах,
- * чтобы избежать погрешностей floating point при арифметике.
- * Пример: 10000 → "100.00", -235198 → "-2,351.98"
- */
-const formatBalance = (balances: number): string => {
-  return (balances / 100).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-};
 
 export const PlayerCard = memo(({ place, balanceControl }: Props) => {
   const isNegative = place.balances < 0;
@@ -49,7 +37,6 @@ export const PlayerCard = memo(({ place, balanceControl }: Props) => {
           </div>
         </div>
 
-        {/* Слот для управления балансом */}
         {balanceControl}
       </Card.Body>
     </Card>
