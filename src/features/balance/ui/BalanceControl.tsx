@@ -13,8 +13,6 @@ interface Props {
 
 type OperationType = "deposit" | "withdraw";
 
-// const MAX_AMOUNT = 100_000;
-
 const CONFIRM_THRESHOLD = 1_000;
 
 const getErrorMessage = (error: unknown): string => {
