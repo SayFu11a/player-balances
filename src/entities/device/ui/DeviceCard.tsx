@@ -8,23 +8,7 @@ interface Props {
 }
 
 export const DeviceCard = memo(({ device, onClick }: Props) => (
-  <Card
-    onClick={() => onClick(device)}
-    className="mb-3 device-card"
-    style={{
-      cursor: "pointer",
-      transition: "transform 0.15s, box-shadow 0.15s",
-    }}
-    onMouseEnter={(e) => {
-      (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-      (e.currentTarget as HTMLElement).style.boxShadow =
-        "0 4px 12px rgba(0,0,0,0.12)";
-    }}
-    onMouseLeave={(e) => {
-      (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-      (e.currentTarget as HTMLElement).style.boxShadow = "";
-    }}
-  >
+  <Card onClick={() => onClick(device)} className="mb-3 device-card">
     <Card.Body className="d-flex justify-content-between align-items-center">
       <div>
         <Card.Title className="mb-1">{device.name}</Card.Title>

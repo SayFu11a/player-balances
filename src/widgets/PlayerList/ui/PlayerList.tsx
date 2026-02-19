@@ -17,8 +17,12 @@ export const PlayerList = ({ deviceId }: Props) => {
 
   return (
     <div>
-      {device.places.map((place) => (
-        <div key={place.place} className="fade-in-up">
+      {device.places.map((place, index) => (
+        <div
+          key={place.place}
+          className="fade-in-up"
+          style={{ animationDelay: `${index * 0.05}s` }}
+        >
           <PlayerCard
             place={place}
             balanceControl={

@@ -23,8 +23,12 @@ export const DeviceList = () => {
 
   return (
     <div>
-      {devices.map((device) => (
-        <div className="fade-in-up" key={device.id}>
+      {devices.map((device, index) => (
+        <div
+          className="fade-in-up"
+          key={device.id}
+          style={{ animationDelay: `${index * 0.05}s` }}
+        >
           <DeviceCard device={device} onClick={handleDeviceClick} />
         </div>
       ))}
