@@ -1,11 +1,10 @@
 import { useState } from "react";
+import axios from "axios";
 import { Form, Button, InputGroup } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { useUpdateBalance } from "@/entities/device";
-// import type { AxiosError } from "axios";
-import axios from "axios";
-import type { ApiError } from "@/shared/types";
+import { useUpdateBalance } from "../model/useUpdateBalance";
 import { getValidationError } from "../model/validation";
+import type { ApiError } from "@/shared/types";
 
 interface Props {
   deviceId: string;
